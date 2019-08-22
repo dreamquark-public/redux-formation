@@ -1,0 +1,490 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Brain product workflow</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<style>
+
+			.reveal section img {
+				background-color: white;
+			}
+
+			.reveal section img[alt] {
+				/* height: 50%;  */
+				max-width: 70%;
+				margin: 5px 0;
+				/* max-height: 80%; */
+			}
+
+			.reveal section[data-markdown] p, .reveal section[data-markdown] ul {
+				font-size:28px;
+			}
+
+			.reveal section[data-markdown] h4 {
+				font-size:36px;
+			}
+
+			.reveal section[data-markdown] code {
+				font-size:18px;
+			}
+
+			.reveal .slides section > section {
+				padding-top: 50px;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+        <section>
+          <section><h3>Redux formation<h3></section>
+          <section>
+            Redux is an open-source JavaScript library for managing application state. It is most commonly used with libraries such as React or Angular for building user interfaces. Similar to (and inspired by) Facebook's Flux architecture, it was created by Dan Abramov and Andrew Clark.
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+#### And so what ?
+
+- **Centralized**:
+
+Centralizing your application's state and logic enables powerful capabilities like undo/redo, state persistence, and much more.
+- **Debuggable**:
+
+The Redux DevTools make it easy to trace when, where, why, and how your application's state changed.
+- **Flexible**:
+
+Redux works with any UI layer, and has a large ecosystem of addons to fit your needs.
+
+            </textarea>
+          </section>
+
+          <section data-markdown>
+            [Redux doc](https://redux.js.org/introduction/getting-started)
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### Redux schema
+
+![redux](./img/redux.jpeg "Reduuuuuux")
+
+              </textarea>
+          </section>
+          <section>
+            <pre><code class="hljs" data-line-numbers="20,30-40">
+<!-- import { createStore } from 'redux'
+
+/**
+ * This is a reducer, a pure function with (state, action) => state signature.
+ * It describes how an action transforms the state into the next state.
+ *
+ * The shape of the state is up to you: it can be a primitive, an array, an object,
+ * or even an Immutable.js data structure. The only important part is that you should
+ * not mutate the state object, but return a new object if the state changes.
+ *
+ * In this example, we use a `switch` statement and strings, but you can use a helper that
+ * follows a different convention (such as function maps) if it makes sense for your
+ * project.
+ */
+function counter(state = 0, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+
+// Create a Redux store holding the state of your app.
+// Its API is { subscribe, dispatch, getState }.
+let store = createStore(counter)
+
+// You can use subscribe() to update the UI in response to state changes.
+// Normally you'd use a view binding library (e.g. React Redux) rather than subscribe() directly.
+// However it can also be handy to persist the current state in the localStorage.
+
+store.subscribe(() => console.log(store.getState()))
+
+// The only way to mutate the internal state is to dispatch an action.
+// The actions can be serialized, logged or stored and later replayed.
+store.dispatch({ type: 'INCREMENT' })
+// 1
+store.dispatch({ type: 'INCREMENT' })
+// 2
+store.dispatch({ type: 'DECREMENT' })
+// 1 -->
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>Don't worry, we will do that step by step 😃</section>
+          <section data-markdown>
+              <textarea data-template>
+#### ACTION
+
+Just a plain object !
+<pre>
+  <code>
+    { type: 'ADD_TODO', text: 'Go to swimming pool' }
+  </code>
+</pre>
+
+The type is the key ! It's will be the way to be understand by a reducer !
+              </textarea>
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### REDUCER
+
+Whaaaa it's a switch 🙌 . !
+The args:
+- state : When you register a reducer, you will give a part of the state, this is the first arg.
+There is a default value !
+- action: ALL THE ACTIONS you will dispatch, it's your famous plain object !
+<pre>
+  <code>
+function todos(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return state.concat([{ text: action.text, completed: false }])
+    default:
+      return state
+  }
+}
+  </code>
+</pre>
+
+The default case is necessary. And the state is an immutable object, please be nice with him !
+              </textarea>
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### Connect to store
+<pre>
+  <code>
+    const reducer = combineReducers({
+      toDo: toDoListReducer,
+      visibility: visibilityFilterReducer
+    })
+
+    const store = createStore(reducer)
+  </code>
+</pre>
+
+Like I said before, all the reducer take care about a part of the state.
+              </textarea>
+          </section>
+        <section>
+          That's it for Redux ! No more 👌.
+          The question is ... and with React ????
+        </section>
+
+        </section>
+
+        <section>
+          <section>React + Redux = 💜</section>
+          <section>
+            How to get back my state in my composant ?
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### The provider
+<pre><code>
+  import React from 'react';
+  import ReactDOM from 'react-dom';
+  import App from './App';
+  import { Provider as ReduxProvider } from 'react-redux';
+  import buildStore from './todoExemple';
+
+
+  ReactDOM.render(
+      <ReduxProvider store={buildStore()}>
+          <App />
+      </ReduxProvider>,
+      document.getElementById('root')
+  );
+
+</code></pre>
+              </textarea>
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### The connect is the key !
+
+Like with because of the react life cycle, when the redux node change, the composant have the new value of the state ! 
+The args:
+- mapStateToProps : A function to get back the state, this is a selector for me !
+- mapDispatchToProps: The Actions you need to dispatch
+<pre>
+  <code>
+    const TodoConnected = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(TodoList)
+  </code>
+</pre>
+
+See the exemple, it's will be more easy to understand !
+              </textarea>
+          </section>
+          <section>
+            Okay, it's nice, but I want to speak with the server, i'm a big boy now 👨🏽‍💻
+          </section>
+
+        </section>
+        <section>
+          <section>Redux React and the Asynchronous call ! </section>
+          <section data-markdown>
+              <textarea data-template>
+#### A magic middleware
+
+The doc: [Redux Thunk](https://github.com/reduxjs/redux-thunk)
+
+<pre>
+  <code>
+    import { createStore, applyMiddleware } from 'redux';
+    import thunk from 'redux-thunk';
+
+    const store = createStore(
+      myReducer,
+      applyMiddleware(thunk)
+    );
+  </code>
+</pre>
+
+A middleware is before all action, this one is for aync action.
+              </textarea>
+          </section>
+          <section data-markdown>
+              <textarea data-template>
+#### The middleware
+
+The doc: [Middleware](https://redux.js.org/advanced/middleware)
+
+<pre>
+  <code>
+    function logger(store) {
+      return function wrapDispatchToAddLogging(next) {
+        return function dispatchAndLog(action) {
+          console.log('dispatching', action)
+          let result = next(action)
+          console.log('next state', store.getState())
+          return result
+        }
+      }
+    }
+  </code>
+</pre>
+              </textarea>
+          </section>
+          <section>
+              Nice, i'm ready to understand everything now !!!
+          </section>
+        </section>
+
+        <section>
+          <section>Redux in Dreamquark 🔎 !</section>
+          <section data-markdown>
+            <textarea data-template>
+### Type of async action
+- REQUEST
+- RECEIVE
+- ERROR
+<pre>
+  <code>
+export function Exemple(params) {
+  return function (dispatch) {
+    dispatch(REQUEST)
+    return fetchToTheApi().then( data => dispatch(RECEIVE),
+          error => dispatch(ERROR));
+  };
+}
+  </code>
+</pre>
+            </textarea>
+          </section>
+          <section data-markdown><textarea data-template>
+#### The meta in the state
+<pre>
+<code>
+  function _singleBrainFetchMetaDataReducer(config, state = {}, action = {}) {
+      if (!action.__brain__) return state;
+      const asyncStatus = action.asyncType === 'load' ? `loaded` : `saved`;
+      if((config.mutate || action.mutate) && !isEmpty(state)) {
+        if(action.type.includes(`RECEIVE_${config.name}`)) {
+            return { mutated: true, mutating: false };
+        }
+        if(action.type.includes(`REQUEST_${config.name}`)) {
+            return { mutating: true, mutated: false };
+        }
+
+        if(action.type.includes(`ERROR_${config.name}`)) {
+            return {...state, mutated: true, mutating: false, error: true};
+        }
+      }
+      if(action.type.includes(`RECEIVE_${config.name}`)) {
+          return { [asyncStatus]: true, loading: false };
+      }
+      if(action.type.includes(`ERROR_${config.name}`)) {
+          return { [asyncStatus]: false, loading: false, error: true };
+      }
+      if(action.type.includes(`CLEAR_${config.name}`)) {
+          return {};
+      }
+      if(action.type.includes(`REQUEST_${config.name}`)) {
+          return { loading: true, [asyncStatus]: false };
+      }
+      console.warn('[_singleBrainFetchMetaReducerBuilder] no case was found for your action, applying a default behavior');
+      return state;
+  };
+</code>
+</pre>
+          </textarea></section>
+          <section data-markdown><textarea data-template>
+#### The state with the Id
+
+All our state is with id, to protect and add more than one same concept in the state
+<pre>
+<code>
+export function brainFetchReducerBuilder(config) {
+  _checkConfig(config);
+  const singleBrainFetchReducer = singleBrainFetchReducerBuilder(config);
+  return function brainFetchReducer(state = {}, action = {}) {
+      if (action.__brain__ && action.type.includes(config.name)) {
+          const KEY = action.key
+          return Object.assign({}, state, {
+              [KEY]: singleBrainFetchReducer(state[KEY], action)
+          });
+      }
+      return state;
+  };
+}
+
+
+</code>
+</pre>
+          </textarea></section>
+          <section data-markdown><textarea data-template>
+#### The builder !
+<pre>
+<code>
+  const APIFieldsApiDetail = `
+        _id
+        name
+        owner {
+            _id
+            name
+        }
+        dataset {
+            _id
+            name
+            fieldsList
+
+        }
+        `
+const loadAPIConfig = {
+    path: 'data.api.detail',
+    name: 'API_DETAIL',
+    id: 'Api-detail-page',
+    graphQlfields: APIFieldsApiDetail,
+    api: 'api.loadApiById'
+};
+
+export const loadAPIAction = brainFetchActionCreatorBuilder(loadAPIConfig, 'load');
+export const loadAPIReducer = brainFetchReducerBuilder(loadAPIConfig);
+export const loadAPISelector = brainFetchSelectorBuilder(loadAPIConfig);
+export const loadAPIClear = brainClearActionCreatorBuilder(loadAPIConfig);
+
+const saveApiCallConfig = {
+    path: 'data.api.detail',
+    name: 'API_DETAIL',
+    mutate: true,
+    api: 'api.makeScoreByApiId'
+};
+
+export const saveAPICallAction = brainFetchActionCreatorBuilder(saveApiCallConfig, 'save');
+</code>
+</pre>
+
+
+
+          </textarea></section>
+          <section data-markdown>
+- The SAVE SHOULD BE IN THE SAME NODE.
+- With the mutate is easy
+- IT'S NOT A GOOD WAY TO RELOAD !!!
+
+- The graphQlfields is new here 🤩
+          </section>
+          <section data-markdown><textarea data-template>
+#### The brainFetchMiddleware
+
+See the code to explain [link](https://gitlab.com/dreamquark/brain/brain-app/blob/develop/src/utils/reduxUtils.js)
+
+- Just to know how it's work, it's not really hard !
+          </textarea></section>
+          <section data-markdown><textarea data-template>
+#### Good practice
+
+**To respect the patern** :
+- Reload always is not GOOOOOD !
+- One concept, One node !
+
+**To have pure component** :
+- Compose of selector ( mapDispatchToProps )
+- Formator / selector / normalize
+
+** To Avoid multiple reload **:
+- The selector SHOULD BE very specific !
+- With a list / single object => next work !
+
+
+          </textarea></section>
+
+        </section>
+
+				<section>
+						<h3>Thank you for your attention !</h3>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
